@@ -4,7 +4,8 @@ import com.clinicops.util.ScannerHelper;
 
 import java.util.Scanner;
 
-public class AdminMenu {
+public class AdminMenu
+{
 
     private static final int DOCTOR_ENTRY = 1;
     private static final int BULK_ENTRY = 2;
