@@ -1,10 +1,11 @@
 package com.clinicops.model;
 
 public enum Specialization {
+
+    CARDIOLOGY,
+    DERMATOLOGY,
+    ORTHOPEDICS,
+    PEDIATRICS,
     GENERAL_PHYSICIAN,
-    INTERNAL_MEDICINE,
-    ENDOCRINOLOGIST,
-    CARDIOLOGIST,
-    CHILD_SPECIALIST,
-    GYNAECOLOGIST
+    NEUROLOGY
 }
