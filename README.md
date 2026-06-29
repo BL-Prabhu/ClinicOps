@@ -1,43 +1,46 @@
-# ClinicOps - UC4 (Enum-Based Validation)
+# ClinicOps - UC5 Bulk Doctor Upload
 
 ## Overview
 
-UC4 improves data accuracy by restricting input using enums.
-
----
-
-## Problem in UC3
-
-* Users could enter invalid text
-* Data inconsistency (typos)
-
----
-
-## Solution
-
-* Introduced enums for Shift and Specialization
-* Added generic method to select enum values
-* Prevented invalid inputs
+UC5 introduces bulk upload of doctors using a CSV file.
 
 ---
 
 ## Features
 
-* Register doctor with validated input
-* Fixed value selection using menu
-* Clean and consistent output
+* Upload multiple doctors from file
+* Auto-generate IDs
+* Validate specialization & shift using enums
+* Batch insert using ArrayList
+
+---
+
+## CSV Format
+
+Name,Specialization,Experience,Shift
+
+Example:
+Manohar Das,GENERAL_PHYSICIAN,5,MORNING
 
 ---
 
 ## Concepts Used
 
-* Enums
-* Generics
-* Input validation
-* OOP
+* File I/O (BufferedReader)
+* String.split()
+* Enum validation
+* Try-with-resources
+* Batch processing (addAll)
+
+---
+
+## Limitations
+
+* Sensitive to CSV format
+* No duplicate check
 
 ---
 
 ## Git Branch
 
-feature/UC4-enum-validation
+feature/UC5-bulk-doctor-upload
