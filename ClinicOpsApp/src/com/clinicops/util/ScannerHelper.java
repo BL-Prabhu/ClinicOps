@@ -33,5 +33,6 @@ public class ScannerHelper {
 
             System.out.println(">> Error: Input cannot be empty.");
         }
+
     }
 }
