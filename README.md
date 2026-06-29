@@ -1,18 +1,18 @@
-# 📘 Use Case 10: Appointment Booking Considering Specialization
+# 📘 Use Case 11: Shift-Aware Appointment Booking
 
 ## 🎯 Goal
 
-To book an appointment for a patient with a doctor based on the required specialization and slot availability.
+To book appointments by considering **doctor specialization, shift availability, and slot availability**, ensuring accurate scheduling.
 
 ---
 
 ## 🚀 Objective
 
-This use case enhances appointment booking by:
+This use case enhances the appointment system by:
 
-* Matching patients with the right specialist
-* Filtering doctors based on specialization
-* Ensuring slot availability before booking
+* Preventing booking outside a doctor’s shift
+* Improving filtering logic
+* Ensuring correct doctor-slot assignment
 
 ---
 
@@ -24,50 +24,65 @@ This use case enhances appointment booking by:
 
 ## 📌 Assumptions
 
-* All doctors are available for both shifts
-* Each doctor has **16 slots per day**:
+* Each doctor is assigned a **specific shift**:
 
-  * Morning: 9:00 AM – 12:30 PM (8 slots)
-  * Evening: 4:00 PM – 7:30 PM (8 slots)
+  * Morning Shift OR Evening Shift
+* Each doctor has **8 slots per shift**:
+
+  * Morning: 9:00 AM – 12:30 PM
+  * Evening: 4:00 PM – 7:30 PM
 * Appointments are booked in **serial order**
-* Specialization is mandatory for booking
+* Specialization is mandatory
 
 ---
 
 ## 🔄 Flow
 
 1. Front Desk Executive selects **Book Appointment**
-2. System asks for:
+2. System takes:
 
-  * Patient details (or existing patient)
-  * Required **Specialization**
-3. System filters doctors based on specialization
-4. System checks for first available slot
-5. If multiple doctors match:
+  * Patient details
+  * Required specialization
+3. System filters doctors based on:
 
-  * One doctor is selected
-6. Appointment is booked
-7. Slot is marked as occupied
+  * Specialization
+  * Shift compatibility
+  * Slot availability
+4. First matching doctor is selected
+5. Appointment is booked
+6. Slot is marked as occupied
 
 ---
 
 ## ⚙️ Key Functionalities
 
-### 1. 🏥 Specialization-Based Booking
+### 1. 🕒 Shift Mapping Logic
 
-* User selects specialization (Enum)
-* Example:
+* Each doctor has an assigned shift
+* System checks if a slot belongs to that shift
+
+#### Example:
+
+```id="x1a9p3"
+Morning Doctor → Can only take slots between 9:00 AM – 12:30 PM
+Evening Doctor → Can only take slots between 4:00 PM – 7:30 PM
+```
+
+* Prevents:
 
   ```
-  CARDIOLOGIST, NEUROLOGIST, ORTHOPEDIC
+  Invalid Shift Booking ❌
   ```
 
 ---
 
-### 2. 🔍 Filtered Doctor Search
+### 2. 🔍 Tri-Filter Search Logic
 
-* Only doctors matching specialization are considered
-* Improves accuracy of treatment
+Doctor selection now uses **three filters**:
+
+```id="m5k2qz"
+Specialization → Shift Compatibility → Slot Availability
+```
 
 ---
 
@@ -75,59 +90,51 @@ This use case enhances appointment booking by:
 
 A doctor is selected only if:
 
-```
-Specialization matches AND Slot is available
-```
+* Specialization matches
+* Slot belongs to doctor’s shift
+* Slot is available
 
 ---
 
-### 4. 📅 Slot Allocation
+### 4. 📅 Slot Validation
 
-* First available slot is assigned
-* Prevents skipping slots
+* Slot must:
 
----
-
-### 5. 📦 Appointment Object
-
-* Stores:
-
-  * Patient reference
-  * Doctor reference
-  * Slot timing
+  * Belong to correct shift
+  * Be unoccupied
 
 ---
 
 ## 🏗️ System Changes
 
-### 1. 🖥️ FrontDeskMenu Updates
+### 1. 👨‍⚕️ Doctor Class Update
 
-* Added specialization input
-* Updated booking logic to include filtering
+* Added method:
+
+```java id="q8v4ld"
+boolean isSlotInShift(String slot)
+```
+
+* Checks if given time belongs to doctor’s shift
 
 ---
 
-### 2. 🔎 Enhanced Search Logic
+### 2. 🔎 Updated Stream Logic
 
-* Stream API used for filtering:
-
-```java
+```java id="c3z7np"
 doctorList.stream()
     .filter(doc -> doc.getSpecialization() == requiredSpecialization)
-    .filter(doc -> doc.hasAvailableSlot())
+    .filter(doc -> doc.isSlotInShift(slot))
+    .filter(doc -> doc.isSlotAvailable(slot))
     .findFirst();
 ```
 
 ---
 
-### 3. 📊 Enum Usage
+### 3. 🖥️ FrontDeskMenu Updates
 
-* Specialization handled using Enum
-* Compared using:
-
-```java
-doc.getSpecialization() == requiredSpecialization
-```
+* Integrated shift-aware filtering
+* Improved booking accuracy
 
 ---
 
@@ -135,30 +142,35 @@ doc.getSpecialization() == requiredSpecialization
 
 ### Input:
 
-```id="n4k2qp"
-Patient: Ravi
-Specialization: CARDIOLOGIST
+```id="v2k8hs"
+Patient: Anjali
+Specialization: NEUROLOGIST
+Requested Slot: 5:00 PM
 ```
 
 ### Output:
 
-```id="m8z1xy"
+```id="b9r4xp"
 Appointment Booked Successfully!
-Doctor: Dr. Mehta (Cardiologist)
-Time: 10:00 AM
+Doctor: Dr. Rao (Evening Shift)
+Time: 5:00 PM
 ```
 
 ---
 
 ## 🧪 Scenario Handling
 
-### ✔ Matching Doctor Available
+### ❌ Shift Mismatch
 
-* Appointment booked successfully
+```id="d6p1xt"
+No doctors available for the selected slot in this shift.
+```
 
-### ❌ No Doctor with Required Specialization
+---
 
-```id="v3p9rs"
+### ❌ No Matching Doctor
+
+```id="z4m7ls"
 No doctors available for selected specialization.
 ```
 
@@ -166,7 +178,7 @@ No doctors available for selected specialization.
 
 ### ❌ All Slots Full
 
-```id="b7k4lm"
+```id="h2q9vn"
 No slots available. Please try later.
 ```
 
@@ -174,37 +186,33 @@ No slots available. Please try later.
 
 ## 📚 Concepts Learned
 
-* ✅ Stream API (filter, findFirst, anyMatch)
-* ✅ Enum Comparison using `==`
-* ✅ Functional Programming in Java
-* ✅ Logical AND conditions
-* ✅ Improved Search Efficiency
+* ✅ Predicate Chaining in Stream API
+* ✅ Multiple Filters (`filter()` chaining)
+* ✅ Encapsulation (Shift logic inside Doctor class)
+* ✅ Clean and Scalable Design
+* ✅ Real-world Scheduling Logic
 
 ---
 
-## 🆚 Improvement Over UC9
+## 🆚 Improvement Over UC10
 
-| Feature         | UC9              | UC10          |
-| --------------- | ---------------- | ------------- |
-| Specialization  | ❌ Not considered | ✅ Implemented |
-| Doctor Matching | Random           | Filtered      |
-| Accuracy        | Basic            | High          |
-| Stream API      | ❌                | ✅             |
+| Feature               | UC10   | UC11 |
+| --------------------- | ------ | ---- |
+| Specialization Filter | ✅      | ✅    |
+| Slot Availability     | ✅      | ✅    |
+| Shift Awareness       | ❌      | ✅    |
+| Booking Accuracy      | Medium | High |
 
 ---
 
 ## 🏁 Conclusion
 
-UC10 significantly improves the system by ensuring:
+UC11 makes the system more realistic and robust by:
 
-* Patients are matched with the correct specialist
-* Efficient and accurate appointment booking
-* Better healthcare service quality
+* Enforcing doctor shift constraints
+* Improving filtering logic
+* Preventing invalid bookings
 
-This sets the stage for advanced features like:
-
-* Priority booking
-* Emergency handling
-* Specialist availability tracking
+This brings the system closer to real-world hospital scheduling systems.
 
 ---
