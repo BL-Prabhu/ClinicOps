@@ -1,58 +1,43 @@
-# ClinicOps
+# ClinicOps - UC4 (Enum-Based Validation)
 
-## Use Case 3: Refactored Doctor Management
+## Overview
 
-### Overview
-This use case improves UC2 by applying OOP concepts and removing code duplication.
-
----
-
-## Problem in UC2
-- Limited to 3 doctors
-- Repetitive code (violates DRY)
-- Hard to scale
-- No proper data structure
+UC4 improves data accuracy by restricting input using enums.
 
 ---
 
-## Solution in UC3
-- Created Doctor class (Encapsulation)
-- Used ArrayList for dynamic storage
-- Auto-generated unique IDs (D0001)
-- Cleaner and maintainable code
+## Problem in UC3
+
+* Users could enter invalid text
+* Data inconsistency (typos)
+
+---
+
+## Solution
+
+* Introduced enums for Shift and Specialization
+* Added generic method to select enum values
+* Prevented invalid inputs
 
 ---
 
 ## Features
-- Register doctor
-- Display all doctors
-- Unlimited doctor entries
+
+* Register doctor with validated input
+* Fixed value selection using menu
+* Clean and consistent output
 
 ---
 
 ## Concepts Used
-- OOP (Encapsulation)
-- Constructor
-- ArrayList
-- String formatting
-- Static memory persistence
 
----
-
-## How to Run
-
-Compile:
-javac com/clinicops/**/*.java
-
-Run:
-java com.clinicops.ClinicApp
+* Enums
+* Generics
+* Input validation
+* OOP
 
 ---
 
 ## Git Branch
-feature/UC3-refactor-doctor-management
 
----
-
-## Author
-Prabhu Nagamani
+feature/UC4-enum-validation
