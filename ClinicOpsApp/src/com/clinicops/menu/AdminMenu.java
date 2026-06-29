@@ -1,132 +1,74 @@
 package com.clinicops.menu;
 
+import com.clinicops.model.Doctor;
 import com.clinicops.util.ScannerHelper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class AdminMenu {
 
-    private static final int DOCTOR_ENTRY = 1;
-    private static final int BULK_ENTRY = 2;
-    private static final int VIEW_AUDIT = 3;
-    private static final int DISPLAY_DOCTORS = 4;
-    private static final int LOGOUT = 5;
-
-    // Doctor Data (class-level)
-    private static String doc1Name = "", doc1Spec = "", doc1Shift = "";
-    private static int doc1Exp = 0;
-
-    private static String doc2Name = "", doc2Spec = "", doc2Shift = "";
-    private static int doc2Exp = 0;
-
-    private static String doc3Name = "", doc3Spec = "", doc3Shift = "";
-    private static int doc3Exp = 0;
+    private static final List<Doctor> doctorList = new ArrayList<>();
+    private static int idCounter = 1;
 
     public static void show(Scanner scanner) {
 
         boolean logout = false;
 
         while (!logout) {
+            System.out.println("\n--- ADMIN MENU ---");
+            System.out.println("1. Register Doctor");
+            System.out.println("2. Display Doctors");
+            System.out.println("3. Logout");
+            System.out.print("Enter choice: ");
 
-            displayAdminOptions();
-
-            int choice = ScannerHelper.readIntWithPrompt(scanner, "Enter choice: ");
+            int choice = ScannerHelper.readInt(scanner);
 
             switch (choice) {
-
-                case DOCTOR_ENTRY:
-                    registerDoctors(scanner);
+                case 1:
+                    registerDoctor(scanner);
                     break;
-
-                case BULK_ENTRY:
-                    System.out.println("[Bulk CSV logic will be implemented]");
-                    break;
-
-                case VIEW_AUDIT:
-                    System.out.println("[Audit log logic will be implemented]");
-                    break;
-
-                case DISPLAY_DOCTORS:
+                case 2:
                     displayDoctors();
                     break;
-
-                case LOGOUT:
+                case 3:
                     logout = true;
-                    System.out.println("Logging out Admin...");
                     break;
-
                 default:
-                    System.out.println("Invalid choice! Try again.");
+                    System.out.println("Invalid choice!");
             }
         }
     }
 
-    private static void displayAdminOptions() {
-        System.out.println("\n--- CLINIC ADMIN MENU ---");
-        System.out.println("1. Doctors' Entry");
-        System.out.println("2. Bulk Entry (CSV)");
-        System.out.println("3. View Audit Logs");
-        System.out.println("4. Display All Doctors");
-        System.out.println("5. Logout");
-    }
+    private static void registerDoctor(Scanner scanner) {
 
-    private static void registerDoctors(Scanner scanner) {
+        System.out.println("\n--- Registering New Doctor ---");
 
-        System.out.println("\n--- Enter Doctor Details ---");
+        String id = String.format("D%04d", idCounter++);
 
-        // Doctor 1
-        System.out.println("\nDoctor 1:");
-        doc1Name = ScannerHelper.readStringWithPrompt(scanner, "Name: ");
-        doc1Spec = ScannerHelper.readStringWithPrompt(scanner, "Specialization: ");
-        doc1Exp = ScannerHelper.readIntWithPrompt(scanner, "Experience: ");
-        doc1Shift = ScannerHelper.readStringWithPrompt(scanner, "Shift: ");
+        String name = ScannerHelper.readString(scanner, "Name: ");
+        String specialization = ScannerHelper.readString(scanner, "Specialization: ");
+        int experience = ScannerHelper.readInt(scanner, "Experience: ");
+        String shift = ScannerHelper.readString(scanner, "Shift: ");
 
-        // Doctor 2
-        System.out.println("\nDoctor 2:");
-        doc2Name = ScannerHelper.readStringWithPrompt(scanner, "Name: ");
-        doc2Spec = ScannerHelper.readStringWithPrompt(scanner, "Specialization: ");
-        doc2Exp = ScannerHelper.readIntWithPrompt(scanner, "Experience: ");
-        doc2Shift = ScannerHelper.readStringWithPrompt(scanner, "Shift: ");
+        Doctor doctor = new Doctor(id, name, specialization, experience, shift);
+        doctorList.add(doctor);
 
-        // Doctor 3
-        System.out.println("\nDoctor 3:");
-        doc3Name = ScannerHelper.readStringWithPrompt(scanner, "Name: ");
-        doc3Spec = ScannerHelper.readStringWithPrompt(scanner, "Specialization: ");
-        doc3Exp = ScannerHelper.readIntWithPrompt(scanner, "Experience: ");
-        doc3Shift = ScannerHelper.readStringWithPrompt(scanner, "Shift: ");
-
-        System.out.println("\nDoctors registered successfully!");
+        System.out.println(">> Doctor registered successfully with ID: " + id);
     }
 
     private static void displayDoctors() {
 
-        System.out.println("\n--- CLINIC: REGISTERED DOCTORS ---");
+        System.out.println("\n--- Doctor List ---");
 
-        if (doc1Name.isEmpty() && doc2Name.isEmpty() && doc3Name.isEmpty()) {
-            System.out.println("No doctors registered yet.");
+        if (doctorList.isEmpty()) {
+            System.out.println("No doctors available.");
             return;
         }
 
-        if (!doc1Name.isEmpty()) {
-            System.out.println("ID: D001 | Name: " + doc1Name +
-                    " | Spec: " + doc1Spec +
-                    " | Exp: " + doc1Exp +
-                    " | Shift: " + doc1Shift);
-        }
-
-        if (!doc2Name.isEmpty()) {
-            System.out.println("ID: D002 | Name: " + doc2Name +
-                    " | Spec: " + doc2Spec +
-                    " | Exp: " + doc2Exp +
-                    " | Shift: " + doc2Shift);
-        }
-
-
-        if (!doc3Name.isEmpty()) {
-            System.out.println("ID: D003 | Name: " + doc3Name +
-                    " | Spec: " + doc3Spec +
-                    " | Exp: " + doc3Exp +
-                    " | Shift: " + doc3Shift);
+        for (Doctor doctor : doctorList) {
+            System.out.println(doctor);
         }
     }
 }
