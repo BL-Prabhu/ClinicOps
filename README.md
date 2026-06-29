@@ -1,19 +1,18 @@
-# 📘 Use Case 9: Appointment Booking by System
+# 📘 Use Case 10: Appointment Booking Considering Specialization
 
 ## 🎯 Goal
 
-To automatically book an appointment for a patient with an available doctor based on slot availability.
+To book an appointment for a patient with a doctor based on the required specialization and slot availability.
 
 ---
 
 ## 🚀 Objective
 
-This use case introduces an automated appointment booking system that:
+This use case enhances appointment booking by:
 
-* Assigns doctors dynamically
-* Manages time slots
-* Prevents double booking
-* Ensures efficient scheduling
+* Matching patients with the right specialist
+* Filtering doctors based on specialization
+* Ensuring slot availability before booking
 
 ---
 
@@ -25,142 +24,110 @@ This use case introduces an automated appointment booking system that:
 
 ## 📌 Assumptions
 
-* Doctor specialization is NOT considered
 * All doctors are available for both shifts
-* Appointments are booked in **serial order only**
-* Total **16 slots per doctor per day**:
+* Each doctor has **16 slots per day**:
 
-    * Morning: 9:00 AM onwards (8 slots, every 30 mins)
-    * Evening: 4:00 PM onwards (8 slots, every 30 mins)
-* Once a slot is booked, it cannot be reused
+  * Morning: 9:00 AM – 12:30 PM (8 slots)
+  * Evening: 4:00 PM – 7:30 PM (8 slots)
+* Appointments are booked in **serial order**
+* Specialization is mandatory for booking
 
 ---
 
 ## 🔄 Flow
 
 1. Front Desk Executive selects **Book Appointment**
-2. System retrieves list of doctors
-3. System checks for **first available slot**
-4. If multiple doctors are available:
+2. System asks for:
 
-    * One doctor is selected randomly
-5. System books the slot
-6. Slot is marked as **occupied**
-7. Appointment is confirmed
+  * Patient details (or existing patient)
+  * Required **Specialization**
+3. System filters doctors based on specialization
+4. System checks for first available slot
+5. If multiple doctors match:
+
+  * One doctor is selected
+6. Appointment is booked
+7. Slot is marked as occupied
 
 ---
 
 ## ⚙️ Key Functionalities
 
-### 1. 📅 Slot Management
+### 1. 🏥 Specialization-Based Booking
 
-* Each doctor has predefined time slots:
-
-  ```
-  09:00, 09:30, 10:00 ... 12:30
-  16:00, 16:30 ... 19:30
-  ```
-* Slots are stored and tracked per doctor
-
----
-
-### 2. 🧠 Availability Check
-
-* Before booking:
-
-    * System checks if slot is already booked
-* Prevents:
-
-  ```
-  Double Booking ❌
-  ```
-
----
-
-### 3. 🎲 Random Doctor Assignment
-
-* If multiple doctors available:
-
-    * System selects randomly using:
-
-  ```java
-  Random rand = new Random();
-  ```
-* Ensures fair distribution of appointments
-
----
-
-### 4. 📦 Appointment Object (Composition)
-
-* Appointment contains:
-
-    * Patient object
-    * Doctor object
-    * Time slot
-
+* User selects specialization (Enum)
 * Example:
 
-  ```java
-  private Patient patient;
-  private Doctor doctor;
-  private String slot;
+  ```
+  CARDIOLOGIST, NEUROLOGIST, ORTHOPEDIC
   ```
 
 ---
 
-### 5. 🧾 Stateful Doctor Object
+### 2. 🔍 Filtered Doctor Search
 
-* Each doctor maintains:
-
-    * List of booked slots
-* Encapsulates schedule within doctor
+* Only doctors matching specialization are considered
+* Improves accuracy of treatment
 
 ---
 
-### 6. 🔗 Cross-Module Communication
+### 3. ✅ Combined Condition Check
 
-* Front Desk accesses doctor list from Admin module
-* Achieved via:
+A doctor is selected only if:
 
-    * Static getter method
+```
+Specialization matches AND Slot is available
+```
+
+---
+
+### 4. 📅 Slot Allocation
+
+* First available slot is assigned
+* Prevents skipping slots
+
+---
+
+### 5. 📦 Appointment Object
+
+* Stores:
+
+  * Patient reference
+  * Doctor reference
+  * Slot timing
 
 ---
 
 ## 🏗️ System Changes
 
-### 1. 📄 Appointment Class (`Appointment.java`)
+### 1. 🖥️ FrontDeskMenu Updates
 
-* New class created
-* Stores:
-
-    * Patient reference
-    * Doctor reference
-    * Slot timing
+* Added specialization input
+* Updated booking logic to include filtering
 
 ---
 
-### 2. 👨‍⚕️ Doctor Class Update
+### 2. 🔎 Enhanced Search Logic
 
-* Added:
+* Stream API used for filtering:
 
-    * List of booked slots
-* Methods:
-
-    * Check availability
-    * Book slot
+```java
+doctorList.stream()
+    .filter(doc -> doc.getSpecialization() == requiredSpecialization)
+    .filter(doc -> doc.hasAvailableSlot())
+    .findFirst();
+```
 
 ---
 
-### 3. 🖥️ FrontDeskMenu Updates
+### 3. 📊 Enum Usage
 
-* Added method:
+* Specialization handled using Enum
+* Compared using:
 
-    * `bookAppointment()`
-* Handles:
-
-    * Slot assignment
-    * Doctor selection
-    * Appointment creation
+```java
+doc.getSpecialization() == requiredSpecialization
+```
 
 ---
 
@@ -168,29 +135,38 @@ This use case introduces an automated appointment booking system that:
 
 ### Input:
 
-```id="k2m9qs"
-Patient: Ravi Kumar
+```id="n4k2qp"
+Patient: Ravi
+Specialization: CARDIOLOGIST
 ```
 
 ### Output:
 
-```id="a9z4lx"
+```id="m8z1xy"
 Appointment Booked Successfully!
-Doctor: Dr. Sharma
-Time: 09:30 AM
+Doctor: Dr. Mehta (Cardiologist)
+Time: 10:00 AM
 ```
 
 ---
 
 ## 🧪 Scenario Handling
 
-### ✔ Slot Available
+### ✔ Matching Doctor Available
 
 * Appointment booked successfully
 
+### ❌ No Doctor with Required Specialization
+
+```id="v3p9rs"
+No doctors available for selected specialization.
+```
+
+---
+
 ### ❌ All Slots Full
 
-```id="s8x1pt"
+```id="b7k4lm"
 No slots available. Please try later.
 ```
 
@@ -198,28 +174,37 @@ No slots available. Please try later.
 
 ## 📚 Concepts Learned
 
-* ✅ Object Composition
-* ✅ Stateful Objects
-* ✅ Random Class Usage
-* ✅ Encapsulation
-* ✅ Inter-Class Communication
-* ✅ Scheduling Logic
+* ✅ Stream API (filter, findFirst, anyMatch)
+* ✅ Enum Comparison using `==`
+* ✅ Functional Programming in Java
+* ✅ Logical AND conditions
+* ✅ Improved Search Efficiency
+
+---
+
+## 🆚 Improvement Over UC9
+
+| Feature         | UC9              | UC10          |
+| --------------- | ---------------- | ------------- |
+| Specialization  | ❌ Not considered | ✅ Implemented |
+| Doctor Matching | Random           | Filtered      |
+| Accuracy        | Basic            | High          |
+| Stream API      | ❌                | ✅             |
 
 ---
 
 ## 🏁 Conclusion
 
-UC9 enhances the system by introducing intelligent appointment booking.
-It ensures:
+UC10 significantly improves the system by ensuring:
 
-* Efficient doctor utilization
-* No slot conflicts
-* Scalable scheduling system
+* Patients are matched with the correct specialist
+* Efficient and accurate appointment booking
+* Better healthcare service quality
 
-This lays the foundation for future enhancements like:
+This sets the stage for advanced features like:
 
-* Doctor specialization filtering
-* Online booking
-* Appointment rescheduling
+* Priority booking
+* Emergency handling
+* Specialist availability tracking
 
 ---

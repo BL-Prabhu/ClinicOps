@@ -1,6 +1,5 @@
 package com.clinicops;
 
-
 import com.clinicops.menu.AdminMenu;
 import com.clinicops.menu.FrontDeskMenu;
 import com.clinicops.util.ScannerHelper;
