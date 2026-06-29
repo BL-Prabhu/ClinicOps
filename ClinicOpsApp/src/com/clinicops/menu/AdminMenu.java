@@ -1,6 +1,6 @@
 package com.clinicops.menu;
 
-import com.clinicops.model.Doctor;
+import com.clinicops.model.*;
 import com.clinicops.util.ScannerHelper;
 
 import java.util.ArrayList;
@@ -17,24 +17,28 @@ public class AdminMenu {
         boolean logout = false;
 
         while (!logout) {
+
             System.out.println("\n--- ADMIN MENU ---");
             System.out.println("1. Register Doctor");
             System.out.println("2. Display Doctors");
             System.out.println("3. Logout");
-            System.out.print("Enter choice: ");
 
-            int choice = ScannerHelper.readInt(scanner);
+            int choice = ScannerHelper.readInt(scanner, "Enter choice: ");
 
             switch (choice) {
+
                 case 1:
                     registerDoctor(scanner);
                     break;
+
                 case 2:
                     displayDoctors();
                     break;
+
                 case 3:
                     logout = true;
                     break;
+
                 default:
                     System.out.println("Invalid choice!");
             }
@@ -48,9 +52,16 @@ public class AdminMenu {
         String id = String.format("D%04d", idCounter++);
 
         String name = ScannerHelper.readString(scanner, "Name: ");
-        String specialization = ScannerHelper.readString(scanner, "Specialization: ");
+
+        System.out.println("Select Specialization:");
+        Specialization specialization =
+                ScannerHelper.readEnumChoice(scanner, Specialization.values());
+
         int experience = ScannerHelper.readInt(scanner, "Experience: ");
-        String shift = ScannerHelper.readString(scanner, "Shift: ");
+
+        System.out.println("Select Shift:");
+        Shift shift =
+                ScannerHelper.readEnumChoice(scanner, Shift.values());
 
         Doctor doctor = new Doctor(id, name, specialization, experience, shift);
         doctorList.add(doctor);
