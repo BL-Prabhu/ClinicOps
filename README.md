@@ -1,218 +1,191 @@
-# 📘 Use Case 11: Shift-Aware Appointment Booking
+# 📘 Use Case 12: Logging Infrastructure (Audit Logger)
 
 ## 🎯 Goal
 
-To book appointments by considering **doctor specialization, shift availability, and slot availability**, ensuring accurate scheduling.
+To implement a logging system that records important system activities and allows the Admin to view audit logs.
 
 ---
 
 ## 🚀 Objective
 
-This use case enhances the appointment system by:
+This use case introduces a centralized logging mechanism that:
 
-* Preventing booking outside a doctor’s shift
-* Improving filtering logic
-* Ensuring correct doctor-slot assignment
+* Tracks system operations
+* Stores logs for future reference
+* Improves debugging and monitoring
 
 ---
 
 ## 👤 Actor
 
-**Front Desk Executive**
-
----
-
-## 📌 Assumptions
-
-* Each doctor is assigned a **specific shift**:
-
-  * Morning Shift OR Evening Shift
-* Each doctor has **8 slots per shift**:
-
-  * Morning: 9:00 AM – 12:30 PM
-  * Evening: 4:00 PM – 7:30 PM
-* Appointments are booked in **serial order**
-* Specialization is mandatory
+**Admin**
 
 ---
 
 ## 🔄 Flow
 
-1. Front Desk Executive selects **Book Appointment**
-2. System takes:
-
-  * Patient details
-  * Required specialization
-3. System filters doctors based on:
-
-  * Specialization
-  * Shift compatibility
-  * Slot availability
-4. First matching doctor is selected
-5. Appointment is booked
-6. Slot is marked as occupied
+1. System performs actions (e.g., doctor added, patient registered, appointment booked)
+2. Each action is logged using `AuditLogger`
+3. Log entries are stored in a list
+4. Admin selects **View Audit Logs**
+5. System displays all recorded logs
 
 ---
 
 ## ⚙️ Key Functionalities
 
-### 1. 🕒 Shift Mapping Logic
+### 1. 📝 Audit Logging
 
-* Each doctor has an assigned shift
-* System checks if a slot belongs to that shift
+* Logs important system events such as:
 
-#### Example:
+  * Doctor added
+  * Patient registered
+  * Appointment booked
+* Each log contains:
 
-```id="x1a9p3"
-Morning Doctor → Can only take slots between 9:00 AM – 12:30 PM
-Evening Doctor → Can only take slots between 4:00 PM – 7:30 PM
-```
+  * Message
+  * Log Level (INFO, ERROR, etc.)
+  * Timestamp
 
-* Prevents:
+---
 
+### 2. ⏱️ Timestamp Tracking
+
+* Each log entry records the exact time of action
+* Uses **Java Time API**:
+
+  ```java
+  LocalDateTime.now()
   ```
-  Invalid Shift Booking ❌
+
+---
+
+### 3. 📊 Log Storage
+
+* Logs are stored in:
+
+  ```java
+  List<LogEntry>
   ```
+* Maintains history of system activities
 
 ---
 
-### 2. 🔍 Tri-Filter Search Logic
+### 4. 👁️ View Audit Logs
 
-Doctor selection now uses **three filters**:
+* Admin can view all logs from menu
+* Displays:
 
-```id="m5k2qz"
-Specialization → Shift Compatibility → Slot Availability
-```
-
----
-
-### 3. ✅ Combined Condition Check
-
-A doctor is selected only if:
-
-* Specialization matches
-* Slot belongs to doctor’s shift
-* Slot is available
-
----
-
-### 4. 📅 Slot Validation
-
-* Slot must:
-
-  * Belong to correct shift
-  * Be unoccupied
+  * Time
+  * Level
+  * Message
 
 ---
 
 ## 🏗️ System Changes
 
-### 1. 👨‍⚕️ Doctor Class Update
+### 1. 📄 AuditLogger Class
 
-* Added method:
+#### Responsibilities:
 
-```java id="q8v4ld"
-boolean isSlotInShift(String slot)
-```
+* Store logs
+* Provide method to log messages
 
-* Checks if given time belongs to doctor’s shift
+#### Example Method:
 
----
-
-### 2. 🔎 Updated Stream Logic
-
-```java id="c3z7np"
-doctorList.stream()
-    .filter(doc -> doc.getSpecialization() == requiredSpecialization)
-    .filter(doc -> doc.isSlotInShift(slot))
-    .filter(doc -> doc.isSlotAvailable(slot))
-    .findFirst();
+```java
+public static void log(String message, String level)
 ```
 
 ---
 
-### 3. 🖥️ FrontDeskMenu Updates
+### 2. 📄 LogEntry Class
 
-* Integrated shift-aware filtering
-* Improved booking accuracy
+* Represents a single log record
+
+#### Attributes:
+
+```java
+private String message;
+private String level;
+private LocalDateTime timestamp;
+```
+
+---
+
+### 3. 🖥️ AdminMenu Updates
+
+* Added option:
+
+  ```
+  View Audit Logs
+  ```
+* Displays all stored logs
+
+---
+
+### 4. 🔗 Integration Across Modules
+
+* Logging added in:
+
+  * Doctor operations
+  * Patient registration
+  * Appointment booking
 
 ---
 
 ## 📌 Example
 
-### Input:
+### Log Entry:
 
-```id="v2k8hs"
-Patient: Anjali
-Specialization: NEUROLOGIST
-Requested Slot: 5:00 PM
-```
-
-### Output:
-
-```id="b9r4xp"
-Appointment Booked Successfully!
-Doctor: Dr. Rao (Evening Shift)
-Time: 5:00 PM
+```id="l9k2pd"
+[2026-06-29 10:30:15] INFO - Patient Registered: Ravi Kumar
 ```
 
 ---
 
-## 🧪 Scenario Handling
+### Multiple Logs Output:
 
-### ❌ Shift Mismatch
-
-```id="d6p1xt"
-No doctors available for the selected slot in this shift.
-```
-
----
-
-### ❌ No Matching Doctor
-
-```id="z4m7ls"
-No doctors available for selected specialization.
-```
-
----
-
-### ❌ All Slots Full
-
-```id="h2q9vn"
-No slots available. Please try later.
+```id="q4m8zs"
+[2026-06-29 09:00:10] INFO - Doctor Added: Dr. Sharma
+[2026-06-29 09:15:25] INFO - Patient Registered: Anjali
+[2026-06-29 09:30:40] INFO - Appointment Booked: Ravi with Dr. Sharma at 10:00 AM
 ```
 
 ---
 
 ## 📚 Concepts Learned
 
-* ✅ Predicate Chaining in Stream API
-* ✅ Multiple Filters (`filter()` chaining)
-* ✅ Encapsulation (Shift logic inside Doctor class)
-* ✅ Clean and Scalable Design
-* ✅ Real-world Scheduling Logic
+* ✅ Data Structures (List of Objects)
+* ✅ Logging Design Pattern
+* ✅ Java Time API (`LocalDateTime`)
+* ✅ Separation of Concerns
+* ✅ Centralized Logging System
 
 ---
 
-## 🆚 Improvement Over UC10
+## 🆚 Improvement Over Previous Use Cases
 
-| Feature               | UC10   | UC11 |
-| --------------------- | ------ | ---- |
-| Specialization Filter | ✅      | ✅    |
-| Slot Availability     | ✅      | ✅    |
-| Shift Awareness       | ❌      | ✅    |
-| Booking Accuracy      | Medium | High |
+| Feature           | Before UC12     | After UC12        |
+| ----------------- | --------------- | ----------------- |
+| Activity Tracking | ❌ Not available | ✅ Implemented     |
+| Debugging Support | ❌ Limited       | ✅ Improved        |
+| System Monitoring | ❌ No visibility | ✅ Full visibility |
 
 ---
 
 ## 🏁 Conclusion
 
-UC11 makes the system more realistic and robust by:
+UC12 introduces a powerful logging mechanism that:
 
-* Enforcing doctor shift constraints
-* Improving filtering logic
-* Preventing invalid bookings
+* Tracks system activities
+* Helps in debugging and auditing
+* Improves system transparency
 
-This brings the system closer to real-world hospital scheduling systems.
+This is a foundational step toward:
+
+* File-based logging
+* Log levels (DEBUG, WARN, ERROR)
+* External logging frameworks (Log4j, SLF4J)
 
 ---
