@@ -1,156 +1,202 @@
-# 📘 Use Case 6: Bulk Doctor Data Entry using OpenCSV (Optional)
+# 📘 Use Case 7: Register Patient Data
 
 ## 🎯 Goal
 
-To enable bulk upload of doctor details from a `.csv` file using the OpenCSV library, while handling data validation and avoiding duplicates.
+To allow the Front Desk Executive to register and manage basic patient information in the system.
 
 ---
 
 ## 🚀 Objective
 
-This use case improves the bulk upload functionality by:
+This use case introduces patient management by:
 
-* Allowing partial success (invalid records are skipped, not entire file)
-* Preventing duplicate doctor entries
-* Providing clear feedback for failed records
+* Capturing patient details
+* Validating mobile numbers
+* Generating unique patient IDs
+* Allowing patient data viewing
 
 ---
 
 ## 👤 Actor
 
-**Admin**
+**Front Desk Executive**
 
 ---
 
 ## 🔄 Flow
 
-The flow remains the same as **Use Case 5 (UC5)**:
+1. Front Desk Executive selects **Register Patient**
+2. Enters patient details:
 
-1. Admin selects **Bulk Data Entry** option
-2. System prompts for CSV file path
-3. File is read using OpenCSV library
-4. Each record is validated and processed
-5. Valid records are added to the system
-6. Invalid or duplicate records are skipped with messages
+  * Name
+  * Gender
+  * Age
+  * Mobile Number
+3. System validates mobile number (Indian format)
+4. System generates a unique Patient ID
+5. Patient data is stored successfully
+6. Option available to **View Registered Patients**
 
 ---
 
 ## ⚙️ Key Functionalities
 
-### 1. 📂 CSV File Processing
+### 1. 🧾 Patient Data Entry
 
-* File is read using OpenCSV (`CSVReader`)
-* Each row represents one doctor record
-* Expected format:
+* Required fields:
 
   ```
-  Name, Specialization, Experience, Shift
+  Name, Gender, Age, Mobile Number
+  ```
+* Data is captured through user input
+
+---
+
+### 2. 🆔 Unique Patient ID Generation
+
+* System auto-generates ID for each patient:
+
+  ```
+  Format: P0001, P0002, P0003...
+  ```
+* Ensures uniqueness even if names are same
+
+---
+
+### 3. 📱 Indian Mobile Number Validation
+
+* Validation is done using **Regex**
+
+* Example pattern:
+
+  ```
+  ^[6-9][0-9]{9}$
+  ```
+
+* Rules:
+
+  * Must be 10 digits
+  * Must start with 6, 7, 8, or 9
+
+* If invalid:
+
+  ```
+  Invalid Mobile Number. Please enter a valid Indian number.
   ```
 
 ---
 
-### 2. ⚠️ Handling Format Sensitivity
+### 4. 👁️ View Patient Data
 
-* If **Specialization** or **Shift** is misspelled:
+* System provides option to display all registered patients
+* Shows:
 
-    * ❌ That record is skipped
-    * ✅ Other valid records are processed
-* System displays message:
-
-  ```
-  Invalid Specialization/Shift : <record>
-  ```
-
----
-
-### 3. 🔁 Duplicate Record Handling
-
-* Duplicate check is performed using:
-
-    * Doctor Name
-    * Specialization
-    * Experience
-
-* If duplicate found:
-
-    * ❌ Record is skipped
-    * ✅ Message shown:
-
-  ```
-  Duplicate Doctor Skipped : <name>
-  ```
+  * Patient ID
+  * Name
+  * Gender
+  * Age
+  * Mobile Number
 
 ---
 
-### 4. 🆔 Unique ID Generation
+## 🏗️ System Changes
 
-* Each valid doctor is assigned a unique ID:
+### 1. 📄 Patient Class (`Patient.java`)
 
-  ```
-  Format: D0001, D0002, ...
-  ```
+* New class created to store patient details
 
----
+* Attributes:
 
-### 5. 📢 Error Handling
+  * `name`
+  * `gender`
+  * `age`
+  * `mobileNumber`
+  * `patientId`
 
-* Invalid records do not stop the process
-* Errors handled:
+* Helps in future expansion:
 
-    * Incorrect column count
-    * Invalid specialization/shift
-    * Number format issues
-    * Duplicate entries
-
----
-
-## ✅ Advantages over UC5
-
-| Feature                 | UC5              | UC6                      |
-| ----------------------- | ---------------- | ------------------------ |
-| Library Support         | ❌ Manual Parsing | ✅ OpenCSV                |
-| Invalid Record Handling | ❌ Stops process  | ✅ Skips only invalid row |
-| Duplicate Check         | ❌ Not handled    | ✅ Implemented            |
-| Error Feedback          | ❌ Limited        | ✅ Detailed messages      |
+  * Medical history
+  * Appointments
+  * Billing
 
 ---
 
-## 📌 Example CSV
+### 2. 🖥️ FrontDeskMenu Updates (`FrontDeskMenu.java`)
 
+#### ➤ Register Patient Method
+
+* Captures user input
+* Calls validation
+* Generates Patient ID
+* Stores patient data
+
+#### ➤ View Patients Method
+
+* Displays all registered patients
+
+---
+
+### 3. 🔧 ScannerHelper Updates (`ScannerHelper.java`)
+
+* Added method to:
+
+  * Read mobile number
+  * Validate using regex
+  * Re-prompt until valid input
+
+---
+
+## 📌 Example
+
+### Input:
+
+```id="u1k3zl"
+Name: Ravi Kumar
+Gender: Male
+Age: 28
+Mobile: 9876543210
 ```
-John Doe,CARDIOLOGIST,10,MORNING
-Jane Smith,NEUROLOGIST,8,EVENING
-Invalid Doc,WRONGSPEC,5,MORNING
-John Doe,CARDIOLOGIST,10,MORNING
+
+### Output:
+
+```id="8y7mqp"
+Patient Registered Successfully!
+Patient ID: P0001
 ```
 
 ---
 
-## 🧪 Expected Output
+## 🧪 Invalid Input Example
 
+```id="4pl8ox"
+Mobile: 12345
 ```
-Invalid Specialization/Shift : Invalid Doc,WRONGSPEC,5,MORNING
-Duplicate Doctor Skipped : John Doe
-Doctors uploaded successfully
+
+### Output:
+
+```id="d1bz9h"
+Invalid Mobile Number. Please enter a valid Indian number.
 ```
 
 ---
 
-## 📦 Dependencies
+## 📚 Concepts Learned
 
-* OpenCSV Library
-* Apache Commons Lang (required by OpenCSV)
+* ✅ Object-Oriented Design (Patient class)
+* ✅ Unique ID Generation
+* ✅ Input Validation using Regex
+* ✅ User Input Handling
+* ✅ Menu-driven program design
 
 ---
 
 ## 🏁 Conclusion
 
-UC6 enhances bulk data upload by making the system:
+UC7 enhances the system by introducing structured patient management.
+It ensures:
 
-* More robust
-* User-friendly
-* Fault-tolerant
-
-It ensures that valid data is always processed even if some records contain errors.
+* Accurate data entry
+* Valid mobile numbers
+* Scalable design for future features
 
 ---
