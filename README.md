@@ -1,19 +1,18 @@
-# 📘 Use Case 7: Register Patient Data
+# 📘 Use Case 8: Check Existing Patient Using Mobile Number
 
 ## 🎯 Goal
 
-To allow the Front Desk Executive to register and manage basic patient information in the system.
+To prevent duplicate patient registration by checking if a patient is already registered using their mobile number.
 
 ---
 
 ## 🚀 Objective
 
-This use case introduces patient management by:
+This use case improves patient registration by:
 
-* Capturing patient details
-* Validating mobile numbers
-* Generating unique patient IDs
-* Allowing patient data viewing
+* Avoiding duplicate entries
+* Saving time for the Front Desk Executive
+* Providing a better user experience for returning patients
 
 ---
 
@@ -26,69 +25,63 @@ This use case introduces patient management by:
 ## 🔄 Flow
 
 1. Front Desk Executive selects **Register Patient**
-2. Enters patient details:
+2. System first asks for **Mobile Number**
+3. System searches for the mobile number in existing records
+4. If mobile number is found:
 
-  * Name
-  * Gender
-  * Age
-  * Mobile Number
-3. System validates mobile number (Indian format)
-4. System generates a unique Patient ID
-5. Patient data is stored successfully
-6. Option available to **View Registered Patients**
+  * System displays patient details
+  * Shows welcome message (e.g., *Welcome back Mohan*)
+  * Registration process stops
+5. If mobile number is NOT found:
+
+  * System asks for remaining details:
+
+    * Name
+    * Gender
+    * Age
+  * Patient is registered as in UC7
 
 ---
 
 ## ⚙️ Key Functionalities
 
-### 1. 🧾 Patient Data Entry
+### 1. 📱 Mobile Number First Approach
 
-* Required fields:
-
-  ```
-  Name, Gender, Age, Mobile Number
-  ```
-* Data is captured through user input
+* Mobile number is taken as the primary input
+* Avoids unnecessary data entry for existing patients
 
 ---
 
-### 2. 🆔 Unique Patient ID Generation
+### 2. 🔍 Lookup Logic (Search Mechanism)
 
-* System auto-generates ID for each patient:
-
-  ```
-  Format: P0001, P0002, P0003...
-  ```
-* Ensures uniqueness even if names are same
+* System searches patient list using mobile number
+* Implemented using **Linear Search**
+* Each patient is checked one-by-one
 
 ---
 
-### 3. 📱 Indian Mobile Number Validation
+### 3. 🚫 Duplicate Prevention
 
-* Validation is done using **Regex**
-
-* Example pattern:
-
-  ```
-  ^[6-9][0-9]{9}$
-  ```
-
-* Rules:
-
-  * Must be 10 digits
-  * Must start with 6, 7, 8, or 9
-
-* If invalid:
+* Mobile number acts as a **unique constraint**
+* If found:
 
   ```
-  Invalid Mobile Number. Please enter a valid Indian number.
+  Patient already registered!
+  Welcome back <Name>
   ```
+* Prevents duplicate entries in system
 
 ---
 
-### 4. 👁️ View Patient Data
+### 4. 🆕 Conditional Registration
 
-* System provides option to display all registered patients
+* Only new patients are registered
+* Existing patients are directly recognized
+
+---
+
+### 5. 👁️ Display Existing Patient Details
+
 * Shows:
 
   * Patient ID
@@ -101,102 +94,111 @@ This use case introduces patient management by:
 
 ## 🏗️ System Changes
 
-### 1. 📄 Patient Class (`Patient.java`)
+### 1. 🖥️ FrontDeskMenu Updates
 
-* New class created to store patient details
+#### ➤ Updated Registration Flow
 
-* Attributes:
+* Mobile number input moved to first step
+* Conditional logic added:
 
-  * `name`
-  * `gender`
-  * `age`
-  * `mobileNumber`
-  * `patientId`
-
-* Helps in future expansion:
-
-  * Medical history
-  * Appointments
-  * Billing
+  * If exists → stop
+  * If not → continue registration
 
 ---
 
-### 2. 🖥️ FrontDeskMenu Updates (`FrontDeskMenu.java`)
+### 2. 🔎 Search Method
 
-#### ➤ Register Patient Method
+* Method added to check existing patients:
 
-* Captures user input
-* Calls validation
-* Generates Patient ID
-* Stores patient data
+  ```java
+  Patient findPatientByMobile(String mobileNumber)
+  ```
+* Returns:
 
-#### ➤ View Patients Method
-
-* Displays all registered patients
+  * Patient object → if found
+  * `null` → if not found
 
 ---
 
-### 3. 🔧 ScannerHelper Updates (`ScannerHelper.java`)
+### 3. 🔐 Encapsulation (Getter Usage)
 
-* Added method to:
+* `mobileNumber` is private in Patient class
+* Accessed using:
 
-  * Read mobile number
-  * Validate using regex
-  * Re-prompt until valid input
+  ```java
+  getMobileNumber()
+  ```
 
 ---
 
 ## 📌 Example
 
-### Input:
+### Existing Patient Scenario
 
-```id="u1k3zl"
-Name: Ravi Kumar
-Gender: Male
-Age: 28
+#### Input:
+
+```id="t6h1sk"
 Mobile: 9876543210
 ```
 
-### Output:
+#### Output:
 
-```id="8y7mqp"
-Patient Registered Successfully!
-Patient ID: P0001
+```id="p2j9lm"
+Patient already registered!
+Welcome back Ravi Kumar
 ```
 
 ---
 
-## 🧪 Invalid Input Example
+### New Patient Scenario
 
-```id="4pl8ox"
-Mobile: 12345
+#### Input:
+
+```id="z8n3qp"
+Mobile: 9123456789
+Name: Anjali
+Gender: Female
+Age: 25
 ```
 
-### Output:
+#### Output:
 
-```id="d1bz9h"
-Invalid Mobile Number. Please enter a valid Indian number.
+```id="x7k2vd"
+Patient Registered Successfully!
+Patient ID: P0005
 ```
 
 ---
 
 ## 📚 Concepts Learned
 
-* ✅ Object-Oriented Design (Patient class)
-* ✅ Unique ID Generation
-* ✅ Input Validation using Regex
-* ✅ User Input Handling
-* ✅ Menu-driven program design
+* ✅ Linear Search Algorithm
+* ✅ Use of `null` for "Not Found"
+* ✅ Encapsulation (Getter methods)
+* ✅ Conditional Workflow Design
+* ✅ Avoiding Duplicate Data
+
+---
+
+## 🆚 Improvement Over UC7
+
+| Feature            | UC7              | UC8          |
+| ------------------ | ---------------- | ------------ |
+| Duplicate Handling | ❌ Not handled    | ✅ Prevented  |
+| Input Flow         | Name first       | Mobile first |
+| Efficiency         | ❌ Time-consuming | ✅ Optimized  |
+| User Experience    | Basic            | Improved     |
 
 ---
 
 ## 🏁 Conclusion
 
-UC7 enhances the system by introducing structured patient management.
-It ensures:
+UC8 enhances the system by ensuring:
 
-* Accurate data entry
-* Valid mobile numbers
-* Scalable design for future features
+* No duplicate patient records
+* Faster registration process
+* Better experience for returning patients
+
+It introduces a simple yet powerful validation mechanism using mobile numbers as a unique identifier.
 
 ---
