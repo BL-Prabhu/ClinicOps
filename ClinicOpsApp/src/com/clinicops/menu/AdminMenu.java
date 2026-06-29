@@ -2,9 +2,10 @@ package com.clinicops.menu;
 
 import com.clinicops.model.Doctor;
 import com.clinicops.model.Shift;
-import com.clinicops.model.Specialization;
+import com.clinicops.util.AuditLogger;
 import com.clinicops.util.FileHandler;
 import com.clinicops.util.ScannerHelper;
+import com.clinicops.model.Specialization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +35,13 @@ public class AdminMenu {
                     bulkImportDoctors();
                     break;
                 case 3:
-                    System.out.println("\nAudit Log feature will be implemented in upcoming use cases.");
+                    AuditLogger.displayLogs();
                     break;
                 case 4:
                     displayDoctors();
                     break;
                 case 5:
-                    System.out.println("\nLogging out from Clinic Admin...");
+                    AuditLogger.log("INFO", "Admin Logged Out.");
                     logout = true;
                     break;
                 default:
@@ -71,8 +72,8 @@ public class AdminMenu {
                     Shift.values());
             Doctor doctor = new Doctor(doctorId, name, specialization, experience, shift);
             doctorList.add(doctor);
+            AuditLogger.log("INFO", "Doctor Registered : " + doctor.getName());
         }
-        System.out.println("\nDoctors Registered Successfully.");
     }
 
     private static void displayDoctors() {
@@ -92,6 +93,6 @@ public class AdminMenu {
         List<Doctor> importedDoctors = FileHandler.loadDoctors(filePath, doctorIdCounter, doctorList);
         doctorList.addAll(importedDoctors);
         doctorIdCounter += importedDoctors.size();
-        System.out.println(importedDoctors.size() + " Doctors Imported Successfully.");
+        AuditLogger.log("INFO", importedDoctors.size() + " Doctors Imported Successfully.");
     }
 }
