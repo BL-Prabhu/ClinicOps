@@ -121,6 +121,7 @@ public class AdminMenu {
                     " | Shift: " + doc2Shift);
         }
 
+
         if (!doc3Name.isEmpty()) {
             System.out.println("ID: D003 | Name: " + doc3Name +
                     " | Spec: " + doc3Spec +
