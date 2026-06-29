@@ -1,5 +1,6 @@
 package com.clinicops.util;
 
+
 import com.clinicops.model.Doctor;
 import com.clinicops.model.Shift;
 import com.clinicops.model.Specialization;
