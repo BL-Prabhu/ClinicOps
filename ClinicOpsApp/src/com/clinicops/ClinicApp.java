@@ -21,6 +21,7 @@ public class ClinicApp {
 
         while (!exitSystem) {
 
+
             System.out.println("\n--- MAIN MENU ---");
             System.out.println("Select Persona:");
             System.out.println("1. Admin");
