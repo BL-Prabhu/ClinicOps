@@ -1,18 +1,19 @@
-# 📘 Use Case 8: Check Existing Patient Using Mobile Number
+# 📘 Use Case 9: Appointment Booking by System
 
 ## 🎯 Goal
 
-To prevent duplicate patient registration by checking if a patient is already registered using their mobile number.
+To automatically book an appointment for a patient with an available doctor based on slot availability.
 
 ---
 
 ## 🚀 Objective
 
-This use case improves patient registration by:
+This use case introduces an automated appointment booking system that:
 
-* Avoiding duplicate entries
-* Saving time for the Front Desk Executive
-* Providing a better user experience for returning patients
+* Assigns doctors dynamically
+* Manages time slots
+* Prevents double booking
+* Ensures efficient scheduling
 
 ---
 
@@ -22,183 +23,203 @@ This use case improves patient registration by:
 
 ---
 
+## 📌 Assumptions
+
+* Doctor specialization is NOT considered
+* All doctors are available for both shifts
+* Appointments are booked in **serial order only**
+* Total **16 slots per doctor per day**:
+
+    * Morning: 9:00 AM onwards (8 slots, every 30 mins)
+    * Evening: 4:00 PM onwards (8 slots, every 30 mins)
+* Once a slot is booked, it cannot be reused
+
+---
+
 ## 🔄 Flow
 
-1. Front Desk Executive selects **Register Patient**
-2. System first asks for **Mobile Number**
-3. System searches for the mobile number in existing records
-4. If mobile number is found:
+1. Front Desk Executive selects **Book Appointment**
+2. System retrieves list of doctors
+3. System checks for **first available slot**
+4. If multiple doctors are available:
 
-  * System displays patient details
-  * Shows welcome message (e.g., *Welcome back Mohan*)
-  * Registration process stops
-5. If mobile number is NOT found:
-
-  * System asks for remaining details:
-
-    * Name
-    * Gender
-    * Age
-  * Patient is registered as in UC7
+    * One doctor is selected randomly
+5. System books the slot
+6. Slot is marked as **occupied**
+7. Appointment is confirmed
 
 ---
 
 ## ⚙️ Key Functionalities
 
-### 1. 📱 Mobile Number First Approach
+### 1. 📅 Slot Management
 
-* Mobile number is taken as the primary input
-* Avoids unnecessary data entry for existing patients
-
----
-
-### 2. 🔍 Lookup Logic (Search Mechanism)
-
-* System searches patient list using mobile number
-* Implemented using **Linear Search**
-* Each patient is checked one-by-one
-
----
-
-### 3. 🚫 Duplicate Prevention
-
-* Mobile number acts as a **unique constraint**
-* If found:
+* Each doctor has predefined time slots:
 
   ```
-  Patient already registered!
-  Welcome back <Name>
+  09:00, 09:30, 10:00 ... 12:30
+  16:00, 16:30 ... 19:30
   ```
-* Prevents duplicate entries in system
+* Slots are stored and tracked per doctor
 
 ---
 
-### 4. 🆕 Conditional Registration
+### 2. 🧠 Availability Check
 
-* Only new patients are registered
-* Existing patients are directly recognized
+* Before booking:
+
+    * System checks if slot is already booked
+* Prevents:
+
+  ```
+  Double Booking ❌
+  ```
 
 ---
 
-### 5. 👁️ Display Existing Patient Details
+### 3. 🎲 Random Doctor Assignment
 
-* Shows:
+* If multiple doctors available:
 
-  * Patient ID
-  * Name
-  * Gender
-  * Age
-  * Mobile Number
+    * System selects randomly using:
+
+  ```java
+  Random rand = new Random();
+  ```
+* Ensures fair distribution of appointments
+
+---
+
+### 4. 📦 Appointment Object (Composition)
+
+* Appointment contains:
+
+    * Patient object
+    * Doctor object
+    * Time slot
+
+* Example:
+
+  ```java
+  private Patient patient;
+  private Doctor doctor;
+  private String slot;
+  ```
+
+---
+
+### 5. 🧾 Stateful Doctor Object
+
+* Each doctor maintains:
+
+    * List of booked slots
+* Encapsulates schedule within doctor
+
+---
+
+### 6. 🔗 Cross-Module Communication
+
+* Front Desk accesses doctor list from Admin module
+* Achieved via:
+
+    * Static getter method
 
 ---
 
 ## 🏗️ System Changes
 
-### 1. 🖥️ FrontDeskMenu Updates
+### 1. 📄 Appointment Class (`Appointment.java`)
 
-#### ➤ Updated Registration Flow
+* New class created
+* Stores:
 
-* Mobile number input moved to first step
-* Conditional logic added:
-
-  * If exists → stop
-  * If not → continue registration
-
----
-
-### 2. 🔎 Search Method
-
-* Method added to check existing patients:
-
-  ```java
-  Patient findPatientByMobile(String mobileNumber)
-  ```
-* Returns:
-
-  * Patient object → if found
-  * `null` → if not found
+    * Patient reference
+    * Doctor reference
+    * Slot timing
 
 ---
 
-### 3. 🔐 Encapsulation (Getter Usage)
+### 2. 👨‍⚕️ Doctor Class Update
 
-* `mobileNumber` is private in Patient class
-* Accessed using:
+* Added:
 
-  ```java
-  getMobileNumber()
-  ```
+    * List of booked slots
+* Methods:
+
+    * Check availability
+    * Book slot
+
+---
+
+### 3. 🖥️ FrontDeskMenu Updates
+
+* Added method:
+
+    * `bookAppointment()`
+* Handles:
+
+    * Slot assignment
+    * Doctor selection
+    * Appointment creation
 
 ---
 
 ## 📌 Example
 
-### Existing Patient Scenario
+### Input:
 
-#### Input:
-
-```id="t6h1sk"
-Mobile: 9876543210
+```id="k2m9qs"
+Patient: Ravi Kumar
 ```
 
-#### Output:
+### Output:
 
-```id="p2j9lm"
-Patient already registered!
-Welcome back Ravi Kumar
+```id="a9z4lx"
+Appointment Booked Successfully!
+Doctor: Dr. Sharma
+Time: 09:30 AM
 ```
 
 ---
 
-### New Patient Scenario
+## 🧪 Scenario Handling
 
-#### Input:
+### ✔ Slot Available
 
-```id="z8n3qp"
-Mobile: 9123456789
-Name: Anjali
-Gender: Female
-Age: 25
-```
+* Appointment booked successfully
 
-#### Output:
+### ❌ All Slots Full
 
-```id="x7k2vd"
-Patient Registered Successfully!
-Patient ID: P0005
+```id="s8x1pt"
+No slots available. Please try later.
 ```
 
 ---
 
 ## 📚 Concepts Learned
 
-* ✅ Linear Search Algorithm
-* ✅ Use of `null` for "Not Found"
-* ✅ Encapsulation (Getter methods)
-* ✅ Conditional Workflow Design
-* ✅ Avoiding Duplicate Data
-
----
-
-## 🆚 Improvement Over UC7
-
-| Feature            | UC7              | UC8          |
-| ------------------ | ---------------- | ------------ |
-| Duplicate Handling | ❌ Not handled    | ✅ Prevented  |
-| Input Flow         | Name first       | Mobile first |
-| Efficiency         | ❌ Time-consuming | ✅ Optimized  |
-| User Experience    | Basic            | Improved     |
+* ✅ Object Composition
+* ✅ Stateful Objects
+* ✅ Random Class Usage
+* ✅ Encapsulation
+* ✅ Inter-Class Communication
+* ✅ Scheduling Logic
 
 ---
 
 ## 🏁 Conclusion
 
-UC8 enhances the system by ensuring:
+UC9 enhances the system by introducing intelligent appointment booking.
+It ensures:
 
-* No duplicate patient records
-* Faster registration process
-* Better experience for returning patients
+* Efficient doctor utilization
+* No slot conflicts
+* Scalable scheduling system
 
-It introduces a simple yet powerful validation mechanism using mobile numbers as a unique identifier.
+This lays the foundation for future enhancements like:
+
+* Doctor specialization filtering
+* Online booking
+* Appointment rescheduling
 
 ---
