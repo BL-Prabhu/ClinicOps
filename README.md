@@ -1,33 +1,39 @@
-# Use Case 13: Functional Logging (Traceability)
+# Use Case 14: Error & Security Logging
 
 ## Goal
-Record all successful business operations like doctor registration and appointment booking.
+Record errors and invalid user actions to improve system security and debugging.
 
 ## Actor
 Admin
 
 ## Flow
-1. When doctor registration is completed, a log is created.
-2. When appointment booking is completed, a log is created.
-3. Each log stores action, time, and status.
-4. Admin can view logs using "View Audit Logs" option.
+1. If CSV upload fails, system logs an ERROR.
+2. If invalid mobile number is entered, system logs a WARNING.
+3. If invalid mobile number is entered multiple times:
+  - System counts attempts
+  - If threshold is crossed, logs as SECURITY ALERT
+4. Admin can view these logs in "View Audit Logs".
 
 ## Key Changes
-- Logging is triggered automatically after successful operations.
-- Integrated logging into:
-  - registerDoctor()
-  - bookAppointment()
-- Logs contain:
-  - Action performed
-  - Timestamp
-  - Status (Success)
+- Added error logging for failed operations (like CSV upload).
+- Added warning logs for invalid inputs.
+- Implemented attempt counter for mobile number validation.
+- Added threshold-based security flagging.
+
+## Log Levels
+- INFO → Normal operations
+- WARNING → Invalid inputs (e.g., wrong mobile number)
+- ERROR → Failed operations (e.g., CSV upload failure)
+- SECURITY → Suspicious repeated invalid attempts
 
 ## Concepts Learned
-- Event-Driven Programming (action triggers another action)
-- Traceability (tracking system activities)
-- Logging best practices
+- Exception Handling (try-catch for errors)
+- Defensive Programming (handling invalid inputs safely)
+- Security Logging (detecting suspicious behavior)
+- System Monitoring
 
 ## Outcome
-- All important operations are recorded
-- Admin can track system activities easily
-- Helps in debugging and monitoring
+- System records why operations failed
+- Helps in debugging errors
+- Detects suspicious user activity
+- Improves overall system security
