@@ -1,39 +1,41 @@
-# Use Case 14: Error & Security Logging
+# Use Case 15: Log4j Migration
 
 ## Goal
-Record errors and invalid user actions to improve system security and debugging.
+Migrate logging system from custom/java logging to Log4j for production-ready logging.
 
 ## Actor
 Admin
 
 ## Flow
-1. If CSV upload fails, system logs an ERROR.
-2. If invalid mobile number is entered, system logs a WARNING.
-3. If invalid mobile number is entered multiple times:
-  - System counts attempts
-  - If threshold is crossed, logs as SECURITY ALERT
-4. Admin can view these logs in "View Audit Logs".
+1. Replace existing logging with Log4j.
+2. Configure log levels (DEBUG, INFO, WARN, ERROR).
+3. Logs are printed in console and stored in file.
+4. System automatically logs all operations.
 
 ## Key Changes
-- Added error logging for failed operations (like CSV upload).
-- Added warning logs for invalid inputs.
-- Implemented attempt counter for mobile number validation.
-- Added threshold-based security flagging.
+- Removed custom AuditLogger and java.util.logging
+- Integrated Log4j library
+- Added log4j2.xml configuration
+- Logging added across:
+    - Admin Menu
+    - Front Desk Menu
+    - File Handling
+    - Input Validation
 
 ## Log Levels
+- DEBUG → Detailed internal logs
 - INFO → Normal operations
-- WARNING → Invalid inputs (e.g., wrong mobile number)
-- ERROR → Failed operations (e.g., CSV upload failure)
-- SECURITY → Suspicious repeated invalid attempts
+- WARN → Invalid inputs or issues
+- ERROR → Failures and exceptions
 
 ## Concepts Learned
-- Exception Handling (try-catch for errors)
-- Defensive Programming (handling invalid inputs safely)
-- Security Logging (detecting suspicious behavior)
-- System Monitoring
+- Dependency Management (Maven)
+- Refactoring existing code
+- Professional logging system
+- Separation of logging configuration
 
 ## Outcome
-- System records why operations failed
-- Helps in debugging errors
-- Detects suspicious user activity
-- Improves overall system security
+- Production-ready logging system
+- Logs stored in file and console
+- Easy debugging and monitoring
+- Better performance than custom logging

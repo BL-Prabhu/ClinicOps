@@ -1,6 +1,7 @@
 package com.clinicops.model;
 
-public enum Specialization {
+public enum Specialization
+{
 
     CARDIOLOGY,
     DERMATOLOGY,

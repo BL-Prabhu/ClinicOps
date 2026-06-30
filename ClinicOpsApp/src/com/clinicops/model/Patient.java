@@ -1,6 +1,7 @@
 package com.clinicops.model;
 
-public class Patient {
+public class Patient
+{
 
     private String patientId;
     private String name;

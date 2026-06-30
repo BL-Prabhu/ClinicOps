@@ -1,16 +1,20 @@
 package com.clinicops.menu;
 
+
 import com.clinicops.model.Doctor;
 import com.clinicops.model.Shift;
 import com.clinicops.model.Specialization;
-import com.clinicops.util.AuditLogger;
 import com.clinicops.util.FileHandler;
 import com.clinicops.util.ScannerHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AdminMenu {
+
+    private static final Logger logger = LogManager.getLogger(AdminMenu.class);
 
     private static final ArrayList<Doctor> doctorList = new ArrayList<>();
     private static int doctorIdCounter = 1;
@@ -35,13 +39,10 @@ public class AdminMenu {
                     bulkImportDoctors();
                     break;
                 case 3:
-                    AuditLogger.displayLogs();
-                    break;
-                case 4:
                     displayDoctors();
                     break;
-                case 5:
-                    AuditLogger.log("INFO", "Admin Logged Out.");
+                case 4:
+                    logger.info("Admin Logged Out");
                     logout = true;
                     break;
                 default:
@@ -55,9 +56,8 @@ public class AdminMenu {
 
         System.out.println("1. Doctor Data Entry");
         System.out.println("2. Bulk Data Entry");
-        System.out.println("3. View Audit Logs");
-        System.out.println("4. Display Doctors");
-        System.out.println("5. Logout");
+        System.out.println("3. Display Doctors");
+        System.out.println("4. Logout");
     }
 
     private static void registerDoctors() {
@@ -71,15 +71,9 @@ public class AdminMenu {
             Shift shift = ScannerHelper.readEnumChoice("\nSelect Shift",
                     Shift.values());
             Doctor doctor = new Doctor(doctorId, name, specialization, experience, shift);
-            AuditLogger.log(
-                    "INFO", "Doctor Registered Successfully : "
-                            + doctor.getId()
-                            + " - "
-                            + doctor.getName()
-                            + " ("
-                            + doctor.getSpecialization()
-                            + ")");
-            AuditLogger.log("INFO", "Doctor Registered : " + doctor.getName());
+            logger.info(
+                    "Doctor Registered Successfully : {}",
+                    doctor.getName());
         }
     }
 
@@ -100,6 +94,5 @@ public class AdminMenu {
         List<Doctor> importedDoctors = FileHandler.loadDoctors(filePath, doctorIdCounter, doctorList);
         doctorList.addAll(importedDoctors);
         doctorIdCounter += importedDoctors.size();
-        AuditLogger.log("INFO", importedDoctors.size() + " Doctors Imported Successfully.");
-    }
+        logger.info("{} Doctors Imported Successfully", importedDoctors.size());    }
 }
