@@ -2,10 +2,10 @@ package com.clinicops.menu;
 
 import com.clinicops.model.Doctor;
 import com.clinicops.model.Shift;
+import com.clinicops.model.Specialization;
 import com.clinicops.util.AuditLogger;
 import com.clinicops.util.FileHandler;
 import com.clinicops.util.ScannerHelper;
-import com.clinicops.model.Specialization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,14 @@ public class AdminMenu {
             Shift shift = ScannerHelper.readEnumChoice("\nSelect Shift",
                     Shift.values());
             Doctor doctor = new Doctor(doctorId, name, specialization, experience, shift);
-            doctorList.add(doctor);
+            AuditLogger.log(
+                    "INFO", "Doctor Registered Successfully : "
+                            + doctor.getId()
+                            + " - "
+                            + doctor.getName()
+                            + " ("
+                            + doctor.getSpecialization()
+                            + ")");
             AuditLogger.log("INFO", "Doctor Registered : " + doctor.getName());
         }
     }
